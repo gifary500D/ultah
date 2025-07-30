@@ -12,6 +12,66 @@
 	let isPlaying = false;
 	let isMobile = false;
 
+	const downloadVoucher = () => {
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d');
+
+		if (!ctx) {
+			console.error('Canvas context not supported.');
+			return;
+		}
+
+		canvas.width = 400;
+		canvas.height = 300;
+
+		const gradient = ctx.createLinearGradient(0, 0, 400, 300);
+		gradient.addColorStop(0, '#f3e8ff');
+		gradient.addColorStop(1, '#fce7f3');
+		ctx.fillStyle = gradient;
+		ctx.fillRect(0, 0, 400, 300);
+
+		ctx.strokeStyle = '#8b5cf6';
+		ctx.lineWidth = 3;
+		ctx.setLineDash([5, 5]);
+		ctx.strokeRect(10, 10, 380, 280);
+
+		ctx.fillStyle = '#7c3aed';
+		ctx.font = 'bold 24px Arial';
+		ctx.textAlign = 'center';
+		ctx.fillText('🎁 GIFT VOUCHER 🎁', 200, 60);
+
+		ctx.font = '16px Arial';
+		ctx.fillStyle = '#6b21a8';
+		ctx.fillText('Happy 20th Birthday!', 200, 100);
+
+		ctx.font = 'bold 18px Arial';
+		ctx.fillStyle = '#be185d';
+		ctx.fillText('For: Beautiful Aya 💕', 200, 140);
+
+		ctx.font = '14px Arial';
+		ctx.fillStyle = '#6b7280';
+		ctx.fillText('Valid for: One Special Surprise', 200, 170);
+		ctx.fillText('July 31st, 2025', 200, 190);
+
+		ctx.font = '20px Arial';
+		ctx.fillText('🍓🎂🎈', 200, 230);
+
+		ctx.font = '12px Arial';
+		ctx.fillText('Show this voucher to claim your gift!', 200, 260);
+
+		canvas.toBlob((blob) => {
+			if (!blob) return;
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = 'aya-birthday-gift-voucher.png';
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+		});
+	};
+
 	// Simplified balloons - only auto-moving, no drag
 	let balloons: Array<{
 		id: number;
@@ -310,11 +370,15 @@
 					on:click={toggleMusic}
 					class="font-poppins transform rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-8 py-3 text-sm font-bold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:from-purple-600 hover:to-pink-600"
 				>
-					{#if isPlaying}
-						⏸️ Pause Music
-					{:else}
-						▶️ Play Music
-					{/if}
+					<span class="inline-flex items-center gap-2">
+						{#if isPlaying}
+							<span>⏸️</span>
+							<span>Pause Music</span>
+						{:else}
+							<span>▶️</span>
+							<span>Play Music</span>
+						{/if}
+					</span>
 				</button>
 				{#if isPlaying}
 					<div class="mt-3 flex items-center justify-center space-x-1">
@@ -394,6 +458,12 @@
 									<div class="mt-2 text-lg">🍓🎂🎈</div>
 								</div>
 							</div>
+							<button
+								on:click={downloadVoucher}
+								class="font-poppins mt-4 w-full transform rounded-full bg-gradient-to-r from-green-500 to-blue-500 px-4 py-2 text-xs font-bold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:from-green-600 hover:to-blue-600"
+							>
+								📥 Download Voucher
+							</button>
 						</div>
 					</div>
 				{/if}
