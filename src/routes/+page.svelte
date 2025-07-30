@@ -36,7 +36,7 @@
 	// Initialize balloons - auto-moving only
 	const initBalloons = () => {
 		const colors = ['#FF69B4', '#FF1493', '#8A2BE2', '#9370DB', '#FF6347'];
-		const balloonCount = isMobile ? 3 : 6;
+		const balloonCount = isMobile ? 5 : 8; // Increased balloon count
 
 		balloons = Array.from({ length: balloonCount }, (_, i) => ({
 			id: i,
@@ -194,18 +194,20 @@
 <div
 	class="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-pink-300 via-purple-300 to-pink-400"
 >
-	<!-- Music Control Button -->
-	<button
-		on:click={toggleMusic}
-		class="fixed top-4 right-4 z-50 rounded-full bg-white/80 p-3 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:bg-white/90"
-		title={isPlaying ? 'Pause Music' : 'Play Music'}
-	>
-		{#if isPlaying}
-			<span class="text-2xl">🔊</span>
-		{:else}
-			<span class="text-2xl">🔇</span>
-		{/if}
-	</button>
+	<!-- Music Control Button - Hidden since we have music player below -->
+	<div class="hidden">
+		<button
+			on:click={toggleMusic}
+			class="fixed top-4 right-4 z-50 rounded-full bg-white/80 p-3 shadow-lg backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:bg-white/90"
+			title={isPlaying ? 'Pause Music' : 'Play Music'}
+		>
+			{#if isPlaying}
+				<span class="text-2xl">🔊</span>
+			{:else}
+				<span class="text-2xl">🔇</span>
+			{/if}
+		</button>
+	</div>
 
 	<!-- Floating strawberries background - reduced for mobile -->
 	{#if mounted && !isMobile}
@@ -250,7 +252,7 @@
 				<h1 class="font-poppins mb-4 text-3xl font-bold text-white drop-shadow-lg md:text-5xl">
 					🎉 Happy 20th Birthday! 🎉
 				</h1>
-				<h2 class="hero-text mb-4 text-5xl font-bold md:text-8xl lg:text-9xl">Ayaa</h2>
+				<h2 class="hero-text mb-4 text-6xl font-bold md:text-8xl lg:text-9xl">Ayaa</h2>
 				<p class="font-poppins text-lg text-white drop-shadow-md">July 31st, 2025 ✨</p>
 			</div>
 		</div>
@@ -296,6 +298,48 @@
 			</div>
 		</div>
 
+		<!-- Music Player Section -->
+		<div class="mx-auto mb-8 max-w-xs">
+			<div class="rounded-3xl bg-white/90 p-6 text-center shadow-2xl backdrop-blur-sm">
+				<div class="mb-3 text-4xl">🎵</div>
+				<h3 class="font-poppins mb-3 text-lg font-bold text-purple-600">🎶 Birthday Song 🎶</h3>
+				<p class="font-poppins mb-4 text-sm text-gray-600">
+					"Feast" - Special song for your special day!
+				</p>
+				<button
+					on:click={toggleMusic}
+					class="font-poppins transform rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-8 py-3 text-sm font-bold text-white shadow-lg transition-all duration-300 hover:scale-105 hover:from-purple-600 hover:to-pink-600"
+				>
+					{#if isPlaying}
+						⏸️ Pause Music
+					{:else}
+						▶️ Play Music
+					{/if}
+				</button>
+				{#if isPlaying}
+					<div class="mt-3 flex items-center justify-center space-x-1">
+						<div class="h-3 w-1 animate-pulse rounded-full bg-purple-500"></div>
+						<div
+							class="h-4 w-1 animate-pulse rounded-full bg-pink-500"
+							style="animation-delay: 0.1s;"
+						></div>
+						<div
+							class="h-5 w-1 animate-pulse rounded-full bg-purple-500"
+							style="animation-delay: 0.2s;"
+						></div>
+						<div
+							class="h-3 w-1 animate-pulse rounded-full bg-pink-500"
+							style="animation-delay: 0.3s;"
+						></div>
+						<div
+							class="h-4 w-1 animate-pulse rounded-full bg-purple-500"
+							style="animation-delay: 0.4s;"
+						></div>
+					</div>
+				{/if}
+			</div>
+		</div>
+
 		<!-- Gift Box Section -->
 		<div class="mb-8 text-center">
 			<div class="relative inline-block">
@@ -323,6 +367,33 @@
 								filled with joy, laughter, and all your favorite things! 🍓💜
 							</p>
 							<div class="mt-4 text-xl">🎂🎈🍓💕✨</div>
+						</div>
+
+						<!-- Gift Card Section -->
+						<div
+							class="mx-auto mt-6 max-w-sm rounded-2xl bg-gradient-to-br from-purple-100 to-pink-100 p-6 shadow-2xl"
+						>
+							<div class="mb-3 text-3xl">🎁</div>
+							<h4 class="font-poppins mb-2 text-base font-bold text-purple-700">
+								🎀 Special Gift Card 🎀
+							</h4>
+							<p class="font-poppins mb-4 text-xs leading-relaxed text-gray-700">
+								This card can be exchanged for a real surprise gift! Just show this to me when we
+								meet 😊
+							</p>
+							<div
+								class="rounded-xl border-2 border-dashed border-purple-300 bg-white p-4 shadow-lg"
+							>
+								<div class="text-center">
+									<div class="mb-2 text-2xl">🌟</div>
+									<p class="font-poppins text-xs font-bold text-purple-600">GIFT VOUCHER</p>
+									<p class="font-poppins mt-1 text-xs text-gray-600">
+										Valid for: One Special Surprise
+									</p>
+									<p class="font-poppins text-xs text-gray-600">For: Beautiful Aya 💕</p>
+									<div class="mt-2 text-lg">🍓🎂🎈</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				{/if}
@@ -613,7 +684,7 @@
 		}
 
 		.hero-text {
-			font-size: 2.5rem;
+			font-size: 3.5rem; /* Increased size for mobile */
 			animation-duration: 6s; /* Slower animation */
 		}
 
@@ -629,7 +700,7 @@
 
 	@media (max-width: 480px) {
 		.hero-text {
-			font-size: 2rem;
+			font-size: 3rem; /* Still larger than before */
 		}
 	}
 
