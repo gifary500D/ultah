@@ -12,14 +12,12 @@
 	let isPlaying = false;
 	let isMobile = false;
 
-	// Reduced balloons for mobile
+	// Simplified balloons - only auto-moving, no drag
 	let balloons: Array<{
 		id: number;
 		x: number;
 		y: number;
 		color: string;
-		isDragging: boolean;
-		dragOffset: { x: number; y: number };
 		autoMoveX: number;
 		autoMoveY: number;
 	}> = [];
@@ -35,113 +33,49 @@
 			/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 	};
 
-	// Initialize balloons with fewer for mobile
+	// Initialize balloons - auto-moving only
 	const initBalloons = () => {
 		const colors = ['#FF69B4', '#FF1493', '#8A2BE2', '#9370DB', '#FF6347'];
-		const balloonCount = isMobile ? 3 : 6; // Reduced from 8 to 3 for mobile
+		const balloonCount = isMobile ? 3 : 6;
 
 		balloons = Array.from({ length: balloonCount }, (_, i) => ({
 			id: i,
 			x: Math.random() * (window.innerWidth - 100),
 			y: Math.random() * (window.innerHeight - 200) + 100,
 			color: colors[i % colors.length],
-			isDragging: false,
-			dragOffset: { x: 0, y: 0 },
-			autoMoveX: (Math.random() - 0.5) * (isMobile ? 1 : 2), // Slower movement for mobile
-			autoMoveY: (Math.random() - 0.5) * (isMobile ? 0.5 : 1)
+			autoMoveX: (Math.random() - 0.5) * (isMobile ? 0.8 : 1.5),
+			autoMoveY: (Math.random() - 0.5) * (isMobile ? 0.4 : 0.8)
 		}));
 	};
 
 	let animationId: number;
 
-	// Optimized balloon animation - slower frame rate for mobile
+	// Simplified balloon animation - auto-move only
 	const animateBalloons = () => {
 		if (!mounted) return;
 
 		balloons.forEach((balloon) => {
-			if (!balloon.isDragging) {
-				balloon.x += balloon.autoMoveX;
-				balloon.y += balloon.autoMoveY;
+			balloon.x += balloon.autoMoveX;
+			balloon.y += balloon.autoMoveY;
 
-				if (balloon.x <= 0 || balloon.x >= window.innerWidth - 80) {
-					balloon.autoMoveX *= -1;
-					balloon.x = Math.max(0, Math.min(window.innerWidth - 80, balloon.x));
-				}
-				if (balloon.y <= 0 || balloon.y >= window.innerHeight - 100) {
-					balloon.autoMoveY *= -1;
-					balloon.y = Math.max(0, Math.min(window.innerHeight - 100, balloon.y));
-				}
+			// Bounce off edges
+			if (balloon.x <= 0 || balloon.x >= window.innerWidth - 80) {
+				balloon.autoMoveX *= -1;
+				balloon.x = Math.max(0, Math.min(window.innerWidth - 80, balloon.x));
+			}
+			if (balloon.y <= 0 || balloon.y >= window.innerHeight - 100) {
+				balloon.autoMoveY *= -1;
+				balloon.y = Math.max(0, Math.min(window.innerHeight - 100, balloon.y));
 			}
 		});
 
 		balloons = [...balloons];
 
 		// Reduce animation frame rate for mobile
-		const delay = isMobile ? 50 : 16; // ~20fps for mobile, ~60fps for desktop
+		const delay = isMobile ? 50 : 16;
 		setTimeout(() => {
 			animationId = requestAnimationFrame(animateBalloons);
 		}, delay);
-	};
-
-	// Balloon drag functions - mobile-friendly
-	const startDrag = (event: MouseEvent | TouchEvent, balloonId: number) => {
-		// Don't prevent default on mobile to allow scrolling
-		if (!isMobile) {
-			event.preventDefault();
-		}
-
-		const balloon = balloons.find((b) => b.id === balloonId);
-		if (!balloon) return;
-
-		const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
-		const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
-
-		balloon.isDragging = true;
-		balloon.dragOffset = {
-			x: clientX - balloon.x,
-			y: clientY - balloon.y
-		};
-	};
-
-	const drag = (event: MouseEvent | TouchEvent) => {
-		const draggingBalloon = balloons.find((b) => b.isDragging);
-		if (!draggingBalloon) return;
-
-		// Only prevent default when actually dragging
-		event.preventDefault();
-
-		const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
-		const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
-
-		draggingBalloon.x = Math.max(
-			0,
-			Math.min(window.innerWidth - 80, clientX - draggingBalloon.dragOffset.x)
-		);
-		draggingBalloon.y = Math.max(
-			0,
-			Math.min(window.innerHeight - 100, clientY - draggingBalloon.dragOffset.y)
-		);
-
-		balloons = [...balloons];
-	};
-
-	const endDrag = () => {
-		balloons.forEach((balloon) => {
-			balloon.isDragging = false;
-		});
-		balloons = [...balloons];
-	};
-
-	const handleBalloonKeydown = (event: KeyboardEvent, balloonId: number) => {
-		if (event.key === 'Enter' || event.key === ' ') {
-			event.preventDefault();
-			const balloon = balloons.find((b) => b.id === balloonId);
-			if (balloon) {
-				balloon.autoMoveX *= 1.2; // Reduced from 1.5
-				balloon.autoMoveY *= 1.2;
-				balloons = [...balloons];
-			}
-		}
 	};
 
 	const openGift = () => {
@@ -171,7 +105,6 @@
 					audioElement.pause();
 					isPlaying = false;
 				} else {
-					// For mobile, lower the volume and ensure user interaction
 					if (isMobile) {
 						audioElement.volume = 0.1;
 					}
@@ -180,7 +113,6 @@
 				}
 			} catch (error) {
 				console.log('Audio play failed:', error);
-				// More user-friendly mobile message
 				if (isMobile) {
 					alert('Tap tombol musik sekali lagi untuk memutar audio');
 				} else {
@@ -197,27 +129,16 @@
 		titleScale.set(1);
 		setTimeout(() => heartScale.set(1), 300);
 
-		// Start balloon animation with reduced performance impact
+		// Start balloon animation
 		animationId = requestAnimationFrame(animateBalloons);
 
-		// More passive event listeners for better mobile scroll
-		if (!isMobile) {
-			window.addEventListener('mousemove', drag, { passive: false });
-			window.addEventListener('mouseup', endDrag, { passive: true });
-		}
-
-		// For mobile, use more passive touch events
-		window.addEventListener('touchmove', drag, { passive: false });
-		window.addEventListener('touchend', endDrag, { passive: true });
-
-		// Optimized audio setup for mobile
+		// Audio setup
 		audioElement = new Audio();
 		audioElement.src = '/feast.mp3';
 		audioElement.loop = true;
-		audioElement.volume = isMobile ? 0.1 : 0.3; // Lower volume for mobile
-		audioElement.preload = isMobile ? 'none' : 'auto'; // Don't preload on mobile
+		audioElement.volume = isMobile ? 0.1 : 0.3;
+		audioElement.preload = isMobile ? 'none' : 'auto';
 
-		// Simplified audio event listeners
 		audioElement.addEventListener('canplaythrough', () => {
 			if (!isMobile) {
 				audioElement.currentTime = 40;
@@ -229,30 +150,22 @@
 		});
 
 		// Handle resize for mobile orientation changes
-		window.addEventListener(
-			'resize',
-			() => {
-				checkMobile();
-				if (balloons.length > 0) {
-					// Reinitialize balloons on orientation change
-					setTimeout(() => {
-						initBalloons();
-					}, 100);
-				}
-			},
-			{ passive: true }
-		);
+		const handleResize = () => {
+			checkMobile();
+			if (balloons.length > 0) {
+				setTimeout(() => {
+					initBalloons();
+				}, 100);
+			}
+		};
+
+		window.addEventListener('resize', handleResize, { passive: true });
 
 		return () => {
 			if (animationId) {
 				cancelAnimationFrame(animationId);
 			}
-			if (!isMobile) {
-				window.removeEventListener('mousemove', drag);
-				window.removeEventListener('mouseup', endDrag);
-			}
-			window.removeEventListener('touchmove', drag);
-			window.removeEventListener('touchend', endDrag);
+			window.removeEventListener('resize', handleResize);
 			if (audioElement) {
 				audioElement.pause();
 			}
@@ -268,7 +181,7 @@
 
 <svelte:head>
 	<title>Happy 20th Birthday Aya! 🍓</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" />
 	<link
@@ -298,7 +211,7 @@
 	{#if mounted && !isMobile}
 		{#each strawberries as strawberry}
 			<div
-				class="absolute animate-bounce text-4xl opacity-20"
+				class="pointer-events-none absolute animate-bounce text-4xl opacity-20"
 				style="
           left: {Math.random() * 90}%; 
           top: {Math.random() * 80}%;
@@ -311,22 +224,12 @@
 		{/each}
 	{/if}
 
-	<!-- Auto-moving Draggable Balloons - disable drag on mobile -->
+	<!-- Auto-moving Balloons - no drag functionality -->
 	{#if mounted}
 		{#each balloons as balloon}
 			<div
-				class="absolute z-10 transition-transform hover:scale-105 focus:outline-none {isMobile
-					? 'pointer-events-none'
-					: 'cursor-grab focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-transparent active:cursor-grabbing'}"
-				style="left: {balloon.x}px; top: {balloon.y}px; transform: {balloon.isDragging
-					? 'scale(1.05)'
-					: 'scale(1)'};"
-				role={isMobile ? 'decoration' : 'button'}
-				tabindex={isMobile ? -1 : 0}
-				aria-label={isMobile ? undefined : 'Draggable balloon ' + (balloon.id + 1)}
-				on:mousedown={isMobile ? undefined : (e) => startDrag(e, balloon.id)}
-				on:touchstart={isMobile ? undefined : (e) => startDrag(e, balloon.id)}
-				on:keydown={isMobile ? undefined : (e) => handleBalloonKeydown(e, balloon.id)}
+				class="pointer-events-none absolute z-10"
+				style="left: {balloon.x}px; top: {balloon.y}px;"
 			>
 				<div class="relative">
 					<div
@@ -366,22 +269,25 @@
 				<!-- Reduced decorative elements for mobile -->
 				{#if !isMobile}
 					<div
-						class="absolute -top-2 -right-2 animate-bounce text-3xl"
+						class="pointer-events-none absolute -top-2 -right-2 animate-bounce text-3xl"
 						style="animation-delay: 0s;"
 					>
 						🍓
 					</div>
 					<div
-						class="absolute -bottom-2 -left-2 animate-bounce text-3xl"
+						class="pointer-events-none absolute -bottom-2 -left-2 animate-bounce text-3xl"
 						style="animation-delay: 0.5s;"
 					>
 						💕
 					</div>
-					<div class="absolute -top-2 -left-2 animate-bounce text-3xl" style="animation-delay: 1s;">
+					<div
+						class="pointer-events-none absolute -top-2 -left-2 animate-bounce text-3xl"
+						style="animation-delay: 1s;"
+					>
 						✨
 					</div>
 					<div
-						class="absolute -right-2 -bottom-2 animate-bounce text-3xl"
+						class="pointer-events-none absolute -right-2 -bottom-2 animate-bounce text-3xl"
 						style="animation-delay: 1.5s;"
 					>
 						🌟
@@ -486,7 +392,7 @@
 				{#if !isMobile}
 					{#each Array(3) as _, i}
 						<span
-							class="absolute animate-ping text-xl opacity-60"
+							class="pointer-events-none absolute animate-ping text-xl opacity-60"
 							style="
               left: {(i - 1) * 25}px; 
               animation-delay: {i * 0.5}s;
@@ -563,28 +469,16 @@
 {/if}
 
 <style>
-	:global(body) {
-		user-select: none;
-		-webkit-user-select: none;
-		-moz-user-select: none;
-		-ms-user-select: none;
+	:global(html) {
 		overflow-x: hidden;
-		/* Ensure scrolling works on mobile */
-		-webkit-overflow-scrolling: touch;
-		touch-action: manipulation;
 	}
 
-	/* Allow scrolling on mobile */
-	@media (max-width: 768px) {
-		:global(body) {
-			touch-action: pan-y pinch-zoom;
-			-webkit-overflow-scrolling: touch;
-		}
-
-		:global(html) {
-			overflow-x: hidden;
-			-webkit-overflow-scrolling: touch;
-		}
+	:global(body) {
+		overflow-x: hidden;
+		/* Enable scrolling for mobile */
+		-webkit-overflow-scrolling: touch;
+		/* Allow normal touch behaviors */
+		touch-action: auto;
 	}
 
 	.font-poppins {
