@@ -83,9 +83,13 @@
 		}, delay);
 	};
 
-	// Balloon drag functions - simplified for mobile
+	// Balloon drag functions - mobile-friendly
 	const startDrag = (event: MouseEvent | TouchEvent, balloonId: number) => {
-		event.preventDefault();
+		// Don't prevent default on mobile to allow scrolling
+		if (!isMobile) {
+			event.preventDefault();
+		}
+
 		const balloon = balloons.find((b) => b.id === balloonId);
 		if (!balloon) return;
 
@@ -100,9 +104,11 @@
 	};
 
 	const drag = (event: MouseEvent | TouchEvent) => {
-		event.preventDefault();
 		const draggingBalloon = balloons.find((b) => b.isDragging);
 		if (!draggingBalloon) return;
+
+		// Only prevent default when actually dragging
+		event.preventDefault();
 
 		const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
 		const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
@@ -194,9 +200,13 @@
 		// Start balloon animation with reduced performance impact
 		animationId = requestAnimationFrame(animateBalloons);
 
-		// Passive event listeners for better performance
-		window.addEventListener('mousemove', drag, { passive: false });
-		window.addEventListener('mouseup', endDrag, { passive: true });
+		// More passive event listeners for better mobile scroll
+		if (!isMobile) {
+			window.addEventListener('mousemove', drag, { passive: false });
+			window.addEventListener('mouseup', endDrag, { passive: true });
+		}
+
+		// For mobile, use more passive touch events
 		window.addEventListener('touchmove', drag, { passive: false });
 		window.addEventListener('touchend', endDrag, { passive: true });
 
@@ -237,8 +247,10 @@
 			if (animationId) {
 				cancelAnimationFrame(animationId);
 			}
-			window.removeEventListener('mousemove', drag);
-			window.removeEventListener('mouseup', endDrag);
+			if (!isMobile) {
+				window.removeEventListener('mousemove', drag);
+				window.removeEventListener('mouseup', endDrag);
+			}
 			window.removeEventListener('touchmove', drag);
 			window.removeEventListener('touchend', endDrag);
 			if (audioElement) {
@@ -268,7 +280,6 @@
 <!-- Background with gradient -->
 <div
 	class="relative min-h-screen overflow-x-hidden bg-gradient-to-br from-pink-300 via-purple-300 to-pink-400"
-	style="touch-action: pan-y; -webkit-overflow-scrolling: touch;"
 >
 	<!-- Music Control Button -->
 	<button
@@ -300,20 +311,22 @@
 		{/each}
 	{/if}
 
-	<!-- Auto-moving Draggable Balloons - reduced for mobile -->
+	<!-- Auto-moving Draggable Balloons - disable drag on mobile -->
 	{#if mounted}
 		{#each balloons as balloon}
 			<div
-				class="absolute z-10 cursor-grab transition-transform hover:scale-105 focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-transparent focus:outline-none active:cursor-grabbing"
+				class="absolute z-10 transition-transform hover:scale-105 focus:outline-none {isMobile
+					? 'pointer-events-none'
+					: 'cursor-grab focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-transparent active:cursor-grabbing'}"
 				style="left: {balloon.x}px; top: {balloon.y}px; transform: {balloon.isDragging
 					? 'scale(1.05)'
 					: 'scale(1)'};"
-				role="button"
-				tabindex="0"
-				aria-label="Draggable balloon {balloon.id + 1}"
-				on:mousedown={(e) => startDrag(e, balloon.id)}
-				on:touchstart={(e) => startDrag(e, balloon.id)}
-				on:keydown={(e) => handleBalloonKeydown(e, balloon.id)}
+				role={isMobile ? 'decoration' : 'button'}
+				tabindex={isMobile ? -1 : 0}
+				aria-label={isMobile ? undefined : 'Draggable balloon ' + (balloon.id + 1)}
+				on:mousedown={isMobile ? undefined : (e) => startDrag(e, balloon.id)}
+				on:touchstart={isMobile ? undefined : (e) => startDrag(e, balloon.id)}
+				on:keydown={isMobile ? undefined : (e) => handleBalloonKeydown(e, balloon.id)}
 			>
 				<div class="relative">
 					<div
@@ -556,6 +569,22 @@
 		-moz-user-select: none;
 		-ms-user-select: none;
 		overflow-x: hidden;
+		/* Ensure scrolling works on mobile */
+		-webkit-overflow-scrolling: touch;
+		touch-action: manipulation;
+	}
+
+	/* Allow scrolling on mobile */
+	@media (max-width: 768px) {
+		:global(body) {
+			touch-action: pan-y pinch-zoom;
+			-webkit-overflow-scrolling: touch;
+		}
+
+		:global(html) {
+			overflow-x: hidden;
+			-webkit-overflow-scrolling: touch;
+		}
 	}
 
 	.font-poppins {
