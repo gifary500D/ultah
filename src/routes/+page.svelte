@@ -240,7 +240,7 @@
 </script>
 
 <svelte:head>
-	<title>Happy 20th Birthday Aya! 🍓</title>
+	<title>Happy 20th Birthday Ayaa! 🍓</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 	<link rel="preconnect" href="https://fonts.googleapis.com" />
 	<link rel="preconnect" href="https://fonts.gstatic.com" />
@@ -312,8 +312,8 @@
 				<h1 class="font-poppins mb-4 text-3xl font-bold text-white drop-shadow-lg md:text-5xl">
 					🎉 Happy 20th Birthday! 🎉
 				</h1>
-				<h2 class="hero-text mb-4 text-6xl font-bold md:text-8xl lg:text-9xl">Ayaa</h2>
-				<p class="font-poppins text-lg text-white drop-shadow-md">July 31st, 2025 ✨</p>
+				<h2 class="hero-text mb-4 text-8xl font-bold md:text-8xl lg:text-9xl">Ayaa</h2>
+				<p class="font-poppins text-lg text-white drop-shadow-md">✨ July 31st, 2005 ✨</p>
 			</div>
 		</div>
 
@@ -427,8 +427,8 @@
 							</h3>
 							<p class="font-poppins text-sm leading-relaxed text-gray-700">
 								Happy 20th Birthday, beautiful! 🌟<br />
-								You're as sweet as strawberries and as lovely as this purple sunset! May your day be
-								filled with joy, laughter, and all your favorite things! 🍓💜
+								You're as sweet as strawberries and as lovely as this sunset! May your day be filled
+								with joy, laughter, and all your favorite things! 🍓💜
 							</p>
 							<div class="mt-4 text-xl">🎂🎈🍓💕✨</div>
 						</div>
@@ -506,7 +506,7 @@
 				<div class="mt-4 grid grid-cols-2 gap-3 text-center">
 					<div class="rounded-2xl bg-pink-100 p-3">
 						<div class="mb-1 text-2xl">🌟</div>
-						<p class="font-poppins text-xs font-semibold text-pink-600">Amazing Adventures</p>
+						<p class="font-poppins text-xs font-semibold text-pink-600">Amazing Life</p>
 					</div>
 					<div class="rounded-2xl bg-purple-100 p-3">
 						<div class="mb-1 text-2xl">💕</div>
@@ -522,7 +522,7 @@
 					</div>
 				</div>
 				<p class="font-poppins mt-4 text-center text-base font-bold text-pink-600">
-					Happy 20th Birthday, Aya! 🎉🍓💜
+					Happy 20th Birthday, Ayaakuu! 🎉🍓💜
 				</p>
 			</div>
 		</div>
@@ -673,9 +673,8 @@
 	}
 
 	.mobile-photo {
-		animation: none; /* Disable rotation on mobile */
-		width: 200px;
-		height: 200px;
+		width: 220px;
+		height: 220px;
 		box-shadow: 0 0 15px rgba(255, 105, 180, 0.4);
 	}
 
